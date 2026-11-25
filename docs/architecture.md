@@ -1,4 +1,4 @@
-# AgentGuard architecture
+# OriginGuard architecture
 
 All diagrams are Mermaid. GitHub, GitLab, VS Code and most Markdown viewers render them inline.
 The sources live in `diagrams/*.mmd`; this file is generated from them. Version 0.4.
@@ -12,7 +12,7 @@ flowchart LR
     U["User"]
     W["Web pages, files, email, tool output"]
     A["AI agent (LLM)"]
-    FW["AgentGuard firewall"]
+    FW["OriginGuard firewall"]
     T["Tools: fetch_page, read_file, send_email, http_post, ..."]
 
     U -->|"trusted request"| FW
@@ -30,7 +30,7 @@ flowchart LR
 
 ## Components
 
-The modules of the `agentguard` package, the FastAPI proxy in front, and the optional Meta Model API behind the judge.
+The modules of the `originguard` package, the FastAPI proxy in front, and the optional Meta Model API behind the judge.
 
 ```mermaid
 flowchart TB
@@ -41,12 +41,12 @@ flowchart TB
         BEN["bench: corpus and runner"]
     end
 
-    subgraph API["agentguard.proxy (FastAPI)"]
+    subgraph API["originguard.proxy (FastAPI)"]
         MW["Method filter, API key check, rate limit"]
         EP["Endpoints: sessions, ingest, model-output, authorize, audit, tools, health"]
     end
 
-    subgraph Core["agentguard core"]
+    subgraph Core["originguard core"]
         FW["firewall.Firewall: sessions with idle expiry"]
         DET["detector: regex rules and zero-width check"]
         NRM["normalize: decoded readings of a text"]
@@ -91,7 +91,7 @@ sequenceDiagram
     autonumber
     actor U as User
     participant A as Agent
-    participant FW as AgentGuard
+    participant FW as OriginGuard
     participant T as Tools
     participant J as Meta Model API
 
@@ -278,8 +278,8 @@ flowchart LR
         LIB["Option A: ToolGuard or Firewall in-process"]
     end
 
-    subgraph Svc["Option B: AgentGuard service"]
-        UV["uvicorn agentguard.proxy:app with API key and rate limit"]
+    subgraph Svc["Option B: OriginGuard service"]
+        UV["uvicorn originguard.proxy:app with API key and rate limit"]
         FWS["Firewall and sessions in memory, idle expiry"]
         LOG[("hash-chained audit file")]
     end
@@ -318,7 +318,7 @@ flowchart LR
 
 ## Agent loop with ToolGuard
 
-What happens on each tool call when an agent loop uses `agentguard.adapters.ToolGuard`.
+What happens on each tool call when an agent loop uses `originguard.adapters.ToolGuard`.
 
 ```mermaid
 sequenceDiagram
@@ -354,9 +354,9 @@ flowchart TB
     caller["Integrator code (agent framework)"] -->|"HTTPS + API key"| svc["Load balancer / Kubernetes Service"]
     prom["Prometheus"] -->|"/metrics"| svc
 
-    svc --> p1["AgentGuard pod 1<br/>N workers"]
-    svc --> p2["AgentGuard pod 2<br/>N workers"]
-    svc --> p3["AgentGuard pod N<br/>N workers"]
+    svc --> p1["OriginGuard pod 1<br/>N workers"]
+    svc --> p2["OriginGuard pod 2<br/>N workers"]
+    svc --> p3["OriginGuard pod N<br/>N workers"]
 
     p1 --> redis[("Redis<br/>session items and events, rate-limit buckets, metrics<br/>if unreachable: every call answers 503")]
     p2 --> redis

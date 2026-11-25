@@ -1,4 +1,4 @@
-"""Measure AgentGuard on a labelled corpus.
+"""Measure OriginGuard on a labelled corpus.
 
 Run from the project root:
 
@@ -30,8 +30,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from agentguard import Firewall, taint
-from agentguard.detector import SUSPICIOUS_THRESHOLD, scan
+from originguard import Firewall, taint
+from originguard.detector import SUSPICIOUS_THRESHOLD, scan
 
 from .corpus import BENIGN, INJECTIONS
 

@@ -5,7 +5,7 @@ sequence of tool calls, using fake data and .test addresses. The injection
 texts are our own paraphrases, not copies of the researchers' payloads, and
 the tool names are simplified. A replay answers one narrow question: given
 the calls a hijacked agent made in the public write-up, what would
-AgentGuard have decided at each step?
+OriginGuard have decided at each step?
 
 It does not show that the real products would have been protected, because
 we did not run those products. The firewall only sees tool calls; an attack
@@ -18,9 +18,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from agentguard import Firewall
-from agentguard.policy import PolicyConfig, ToolProfile
-from agentguard.models import ToolRisk
+from originguard import Firewall
+from originguard.policy import PolicyConfig, ToolProfile
+from originguard.models import ToolRisk
 
 FAKE_SECRET = 'DEMO-SECRET-7731'
 

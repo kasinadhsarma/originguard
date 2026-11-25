@@ -25,7 +25,7 @@
 % ---------------------------------------------------------------- helpers
 \newcommand{\code}[1]{\texttt{\detokenize{#1}}}
 \newcommand{\sshpath}{\texttt{\textasciitilde/.ssh/id\_rsa}}
-\newcommand{\product}{AgentGuard}
+\newcommand{\product}{OriginGuard}
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
@@ -245,7 +245,7 @@ adapters/ & \code{ToolGuard} and adapters for OpenAI-style, Anthropic-style and 
 proxy.py & FastAPI service exposing the firewall over HTTP, with authentication and rate limiting. GET and POST only. \\
 \bottomrule
 \end{tabularx}
-\caption{Modules of the \code{agentguard} package.}
+\caption{Modules of the \code{originguard} package.}
 \end{table}
 
 \mermaidfigure{02-components}{Components and their dependencies.}{dg:components}
@@ -267,8 +267,8 @@ The order matters. The page is ingested \emph{before} the model sees it, so the 
 
 \begin{itemize}
   \item \textbf{In-process.} Import \code{Firewall} (or wrap tools with \code{ToolGuard}) and call it directly. No network hop, simplest to test. The demos use this mode.
-  \item \textbf{HTTP service, one worker.} Run \code{uvicorn agentguard.proxy:app} and call the endpoints from any language. Sessions live in the memory of that process and expire when idle; with an audit file configured, events also go to a hash-chained log.
-  \item \textbf{HTTP service, many workers or pods.} Set \code{AGENTGUARD_REDIS_URL}. Sessions, rate-limit buckets and metrics move to Redis and every worker shares them (Diagram~\ref{dg:scaled}, Section~\ref{sec:scale}). Without Redis, more than one worker is wrong, not merely slow.
+  \item \textbf{HTTP service, one worker.} Run \code{uvicorn originguard.proxy:app} and call the endpoints from any language. Sessions live in the memory of that process and expire when idle; with an audit file configured, events also go to a hash-chained log.
+  \item \textbf{HTTP service, many workers or pods.} Set \code{ORIGINGUARD_REDIS_URL}. Sessions, rate-limit buckets and metrics move to Redis and every worker shares them (Diagram~\ref{dg:scaled}, Section~\ref{sec:scale}). Without Redis, more than one worker is wrong, not merely slow.
 \end{itemize}
 \mermaidfigure{09-scaled-deployment}{Scaled deployment: stateless pods sharing one Redis.}{dg:scaled}
 
@@ -548,7 +548,7 @@ JSON format \code{email} or \code{uri}, or an explicit marker property & Target 
 \caption{How profiles are generated.}
 \end{table}
 
-A schema author can mark any property as a target with the key \code{x-agentguard-target} set to true. The free-text description is deliberately ignored: descriptions from third-party servers can be written by an attacker. A generated side-effect profile with no target argument needs confirmation (R3), because its origin cannot be checked. Hand-written profiles always win, and the HTTP API cannot replace them. Generated profiles are heuristics and should be reviewed with \code{GET /tools}.
+A schema author can mark any property as a target with the key \code{x-originguard-target} set to true. The free-text description is deliberately ignored: descriptions from third-party servers can be written by an attacker. A generated side-effect profile with no target argument needs confirmation (R3), because its origin cannot be checked. Hand-written profiles always win, and the HTTP API cannot replace them. Generated profiles are heuristics and should be reviewed with \code{GET /tools}.
 
 \paragraph{Validation (R5).} \code{validate_arguments} checks a subset of JSON Schema: type, enum, required, properties, additionalProperties false, items, minLength, maxLength, minimum, maximum, pattern and the email format. Booleans are not accepted as integers. Other keywords are ignored, and only top-level arguments are examined as targets.
 
@@ -694,7 +694,7 @@ PUT /health
 
 \subsection{One-line wrapper}
 \begin{lstlisting}[language=Python]
-from agentguard.adapters import ToolGuard
+from originguard.adapters import ToolGuard
 
 guard = ToolGuard.local(user_request, on_confirm=ask_user)
 tools = guard.protect_all({"fetch_page": fetch_page, "send_email": send})
@@ -708,7 +708,7 @@ Blocked calls raise \code{ToolBlocked}; pass \code{on_block='message'} to \code{
 
 \subsection{Wrapping an agent loop by hand}
 \begin{lstlisting}[language=Python]
-from agentguard import Firewall, MetaJudge, Verdict
+from originguard import Firewall, MetaJudge, Verdict
 
 guard = Firewall(judge=MetaJudge())      # judge is off without a key
 sid = guard.new_session(user_request)    # trusted content
@@ -728,9 +728,9 @@ Source names matter. Use \code{user} for the person's own words and \code{system
 
 \subsection{Adding a tool}
 \begin{lstlisting}[language=Python]
-from agentguard import Firewall, PolicyConfig
-from agentguard.models import ToolRisk
-from agentguard.policy import DEFAULT_PROFILES, ToolProfile
+from originguard import Firewall, PolicyConfig
+from originguard.models import ToolRisk
+from originguard.policy import DEFAULT_PROFILES, ToolProfile
 
 profiles = dict(DEFAULT_PROFILES)
 profiles["slack_post"] = ToolProfile(ToolRisk.SIDE_EFFECT, ("channel",))
@@ -754,15 +754,15 @@ Pass the definitions your framework already holds. The firewall validates every 
 Setting & Effect \\
 \midrule
 MODEL\_API\_KEY & Enables the Meta Model API judge when set. \\
-AGENTGUARD\_API\_KEYS & Comma-separated keys. When set, every endpoint except /health requires one. \\
-AGENTGUARD\_RATE\_LIMIT & Requests per minute per caller; 429 beyond it. Off if unset. \\
-AGENTGUARD\_RATE\_BURST & Bucket size; defaults to the per-minute rate. \\
-AGENTGUARD\_SESSION\_TTL & Seconds idle before a session expires. \\
-AGENTGUARD\_AUDIT\_FILE & Path of the hash-chained audit log; \$VARS are expanded (audit-\$HOSTNAME.jsonl). Off if unset. \\
-AGENTGUARD\_AUDIT\_KEY & HMAC key for the audit log. Strongly recommended. \\
-AGENTGUARD\_AUDIT\_FSYNC & 1 to fsync every audit record. \\
-AGENTGUARD\_REDIS\_URL & Share sessions, rate limits and metrics between workers through Redis. \\
-AGENTGUARD\_REDIS\_MAX\_CONNECTIONS & Redis pool size per worker. Default 50. \\
+ORIGINGUARD\_API\_KEYS & Comma-separated keys. When set, every endpoint except /health requires one. \\
+ORIGINGUARD\_RATE\_LIMIT & Requests per minute per caller; 429 beyond it. Off if unset. \\
+ORIGINGUARD\_RATE\_BURST & Bucket size; defaults to the per-minute rate. \\
+ORIGINGUARD\_SESSION\_TTL & Seconds idle before a session expires. \\
+ORIGINGUARD\_AUDIT\_FILE & Path of the hash-chained audit log; \$VARS are expanded (audit-\$HOSTNAME.jsonl). Off if unset. \\
+ORIGINGUARD\_AUDIT\_KEY & HMAC key for the audit log. Strongly recommended. \\
+ORIGINGUARD\_AUDIT\_FSYNC & 1 to fsync every audit record. \\
+ORIGINGUARD\_REDIS\_URL & Share sessions, rate limits and metrics between workers through Redis. \\
+ORIGINGUARD\_REDIS\_MAX\_CONNECTIONS & Redis pool size per worker. Default 50. \\
 MetaJudge(model=...) & Choose another model id, for example \code{muse-spark-1.2}. \\
 MetaJudge(base\_url=...) & Point at a compatible endpoint. \\
 PolicyConfig(profiles=...) & Replace or extend the tool profiles. \\
@@ -780,7 +780,7 @@ python -m demo.run_demo          # terminal demo (simulated agent)
 python -m demo.run_demo --live   # real model as the agent (needs MODEL_API_KEY)
 python -m bench.run_bench        # benchmark on the bundled corpus
 streamlit run demo/app.py        # visual demo
-uvicorn agentguard.proxy:app     # HTTP service
+uvicorn originguard.proxy:app     # HTTP service
 python -m bench.scale_matrix     # load test: memory vs Redis, 1 and 2 workers
 \end{lstlisting}
 
@@ -931,7 +931,7 @@ How to read this:
 \end{itemize}
 
 \subsection{Deployment files}
-\code{Dockerfile} (unprivileged user, one worker per \code{WEB_CONCURRENCY}, keep-alive 30 s), \code{docker-compose.yml} (Redis with no persistence plus the service, read-only filesystem, all capabilities dropped) and \code{deploy/k8s/agentguard.yaml} (three pods autoscaled to 30 on CPU, readiness on \code{/ready}, liveness on \code{/health}, a pod disruption budget, a secret for keys). The Dockerfile and compose file were built and run once on the author's machine: \code{/ready} reported ready with the Redis session store, and \code{/health} showed authentication, rate limiting, the signed audit log and Redis metrics enabled. That first run found a real bug (the unprivileged user could not read files copied with mode 600), which is fixed. They were not load tested in a container, and the Kubernetes manifest has not been applied: its YAML parses and nothing more has been checked.
+\code{Dockerfile} (unprivileged user, one worker per \code{WEB_CONCURRENCY}, keep-alive 30 s), \code{docker-compose.yml} (Redis with no persistence plus the service, read-only filesystem, all capabilities dropped) and \code{deploy/k8s/originguard.yaml} (three pods autoscaled to 30 on CPU, readiness on \code{/ready}, liveness on \code{/health}, a pod disruption budget, a secret for keys). The Dockerfile and compose file were built and run once on the author's machine: \code{/ready} reported ready with the Redis session store, and \code{/health} showed authentication, rate limiting, the signed audit log and Redis metrics enabled. That first run found a real bug (the unprivileged user could not read files copied with mode 600), which is fixed. They were not load tested in a container, and the Kubernetes manifest has not been applied: its YAML parses and nothing more has been checked.
 
 \subsection{Not done}
 Redis Cluster (key names are cluster-safe but this was never tested, and the metrics hash is a single hot key); a Redis with replication and failover; a single audit chain across pods; a load test from a separate machine; a test at more than two workers.
@@ -940,13 +940,13 @@ Redis Cluster (key names are cluster-safe but this was never tested, and the met
 \section{Related work and public attacks}\label{sec:related}
 
 \subsection{Related defenses}
-The idea of tracking where an instruction came from, and refusing actions that only untrusted content asked for, is not new. CaMeL (Debenedetti et al., Google DeepMind and ETH Zurich, 2025) goes further than this project: a privileged model writes a plan from the trusted request only, a quarantined model reads untrusted data, and an interpreter tracks provenance and enforces policies. The authors report 77\% of AgentDojo tasks solved with provable security against 84\% undefended, at about 2.8 times the input tokens, with policies that must be written and maintained. AgentGuard is much weaker by design: it does not control the plan, it checks each tool call afterwards with textual taint rules and a regex detector. In exchange it needs no change to the agent, works with any model, and is small enough to read. Meta's LlamaFirewall and the ``spotlighting'' technique are other published approaches in the same area; we did not compare against them.
+The idea of tracking where an instruction came from, and refusing actions that only untrusted content asked for, is not new. CaMeL (Debenedetti et al., Google DeepMind and ETH Zurich, 2025) goes further than this project: a privileged model writes a plan from the trusted request only, a quarantined model reads untrusted data, and an interpreter tracks provenance and enforces policies. The authors report 77\% of AgentDojo tasks solved with provable security against 84\% undefended, at about 2.8 times the input tokens, with policies that must be written and maintained. OriginGuard is much weaker by design: it does not control the plan, it checks each tool call afterwards with textual taint rules and a regex detector. In exchange it needs no change to the agent, works with any model, and is small enough to read. Meta's LlamaFirewall and the ``spotlighting'' technique are other published approaches in the same area; we did not compare against them.
 
 \subsection{The answer check}
 \code{Firewall.check\_output} (HTTP: \code{POST /sessions/\{id\}/check-output}) inspects the text shown to the user. Rule O1 blocks a markdown or HTML image whose host only untrusted content named, because an image loads without a click. Rule O2 blocks any address to a host the user did not name that carries sensitive content: a long span copied from a sensitive item, or a token of at least eight letters and digits found after percent-decoding. A link to an untrusted-only host with no data in it is only reported. Blocked addresses are replaced by a marker in the returned safe text. Limits: it knows a secret only if it was ingested as sensitive; a secret split or re-encoded beyond the readings in \code{normalize.py} can slip through; it does not see content a client renders that the text does not show.
 
 \subsection{Documented incidents}
-Three public incidents show the shape of the problem. We did not run the affected products. We replayed the published attack shape as scripted tool calls with fake data and our own paraphrased injection text (\code{demo/incidents.py}); the result only says what AgentGuard would decide at each step, not that the product would have been safe.
+Three public incidents show the shape of the problem. We did not run the affected products. We replayed the published attack shape as scripted tool calls with fake data and our own paraphrased injection text (\code{demo/incidents.py}); the result only says what OriginGuard would decide at each step, not that the product would have been safe.
 \begin{itemize}
   \item \textbf{GitHub MCP, May 2025} (Invariant Labs). A malicious issue in a public repository made an agent read the owner's private repositories and publish them in a pull request on the public one. Replay result: the pull request goes to the repository the user named, so no target rule fires on it. Reading the private repository was held by rule R3, because the user never named it. If the user approves that prompt out of habit, the leak goes through. Rule R3 now blocks, instead of asking, when the context also scores as a likely injection, but the detector did not flag our paraphrased issue text, so in this replay it still only asks.
   \item \textbf{Slack AI, August 2024} (PromptArmor). A message in a public channel made the assistant show a link carrying a secret in its address. No tool ran; the user's click sent the secret. Tool-call rules cannot see this. The answer check (Section~\ref{sec:related}, rules O1 and O2) reads the final answer, finds an address to a host the user never named that carries the secret, blocks it and removes it from the text. This works only if the answer passes through the check before it is shown.
@@ -961,7 +961,7 @@ AgentDojo (Debenedetti et al., 2024) is a public benchmark of agent tasks with a
   \item 8 goals name no such target. Rule R6 (a side-effect call whose short identifier argument, such as a hotel name or a password, was named only by untrusted content, outside free-text arguments such as the email body) holds 3 of them (a short value is allowed in an argument named like an id, so the file identifier counts), and 5 have no call to check (text-only answers, or no named value). We wrote R6 after seeing these goals, so this is not a clean held-out result; the bundled benchmark did not change when R6 was added (44 blocked, 2 held, 0 allowed, 48 of 52 legitimate emails allowed).
   \item 0 of 39 of the benchmark's harmless default texts were flagged, and 2 of 559 benign texts from its environment data (emails, files, messages), 0.4\%. The two are ordinary: a password-reset email that says to ignore it, and meeting minutes. This is benchmark text, not a false-positive rate for real traffic.
 \end{itemize}
-On 46 real attacker goals from the public AgentDojo benchmark, AgentGuard held the attacker's action in 41 (89\%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. Five are not caught. ``Held'' includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks. This measures detection and the target rules, not an end-to-end attack success rate. We did not run AgentDojo's full agent loop with a real model.
+On 46 real attacker goals from the public AgentDojo benchmark, OriginGuard held the attacker's action in 41 (89\%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. Five are not caught. ``Held'' includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks. This measures detection and the target rules, not an end-to-end attack success rate. We did not run AgentDojo's full agent loop with a real model.
 
 \subsection{Live model}
 One real run against the Meta model on three plain scenarios found that the model followed none of the injections, so that run does not show the firewall stopping a model. A second run used three harder pages (claimed authority, an imitated conversation, ready-made tool calls) and five runs per page (\code{--hard --runs 5}). Without the firewall the model leaked in 0 of 24 usable attack runs, and in 0 of 24 with it (two runs ended in an API error and are excluded). With 0 of 24 the leak rate could still be about 12\% (rule of three). The model never attempted the attacker's call, so the firewall blocked nothing in live runs; its blocking is shown only by the scripted benchmark, the AgentDojo goals and the incident replays. This shows that this model resisted these pages, not that it is immune. A stress-test mode (\code{--obedient}) tells the model that instructions in pages are legitimate. It was run once on the same five pages, five runs each: the model leaked in 0 of 22 usable runs without the firewall and 0 of 21 with it (seven runs ended in an API error, five of them on the claimed-authority page; the cause was not examined). With 0 of 22 the leak rate could still be about 14\% (rule of three). Even when told to obey, this model never sent anything to the attacker, so the firewall still blocked nothing in live runs and its blocking is shown only by the scripted tests, the AgentDojo goals and the replays.
@@ -978,7 +978,7 @@ Textual target matching & Common disguises are decoded, but a target the page ne
 Derived content is partly tracked & Model output is linked to untrusted content only when you record it, and only through a copied span of 24 characters or a named address or host. A free paraphrase is not linked. & Semantic linkage of model output to its sources. \\
 Judge can be attacked too & A page can try to talk the judge into answering ``clean''. & The judge can only raise suspicion, and R1 does not depend on it. \\
 Judge sees untrusted text off-machine & Content leaves the host when the judge is on. & Never sent: trusted or sensitive content. Optionally disable or self-host the endpoint. \\
-Process state without Redis & Without \code{AGENTGUARD_REDIS_URL} sessions and the limiter live in one process; a second worker silently breaks the firewall's memory (Section~\ref{sec:scale}). & Set the Redis URL before adding workers. \\
+Process state without Redis & Without \code{ORIGINGUARD_REDIS_URL} sessions and the limiter live in one process; a second worker silently breaks the firewall's memory (Section~\ref{sec:scale}). & Set the Redis URL before adding workers. \\
 Redis holds secrets & With Redis, page text and the contents of files the agent read sit there in plain text until the TTL ends; anyone who can write to it can plant ``trusted'' text. & Private network, password, TLS, no persistence, short TTL. \\
 Audit log tail & Removing the end of the log is invisible to the chain alone, and without an HMAC key a full rewrite can be recomputed. & Set the HMAC key; save the head elsewhere and verify with it. \\
 Generated profiles are heuristics & A tool named innocently but doing harm is classed by its name; nested arguments are not examined as targets; only a subset of JSON Schema is validated. & Review \code{GET /tools}. Hand-write profiles for critical tools. \\
@@ -1012,8 +1012,8 @@ The items planned for versions 0.2 to 0.5 (decoded targets, taint through model 
 
 \section{Repository layout}
 \begin{lstlisting}
-agentguard-fw/
-  agentguard/
+originguard/
+  originguard/
     models.py        shared types
     detector.py      pattern scan
     normalize.py     decoded readings for matching

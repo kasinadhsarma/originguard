@@ -2,9 +2,9 @@
 
 import pytest
 
-from agentguard import Firewall, PolicyConfig
-from agentguard.models import ToolRisk, Verdict
-from agentguard.tool_schema import (
+from originguard import Firewall, PolicyConfig
+from originguard.models import ToolRisk, Verdict
+from originguard.tool_schema import (
     ToolSpec,
     infer_profile,
     name_tokens,
@@ -106,7 +106,7 @@ def test_targets_come_from_names_formats_and_markers() -> None:
         title={'type': 'string'},
         assignee={'type': 'string', 'format': 'email'},
         webhook_url={'type': 'string'},
-        notify={'type': 'string', 'x-agentguard-target': True},
+        notify={'type': 'string', 'x-originguard-target': True},
     ))
     assert set(infer_profile(spec).target_args) == {
         'assignee', 'webhook_url', 'notify',

@@ -79,11 +79,11 @@ def main() -> None:
         for name, workers, shared in setups:
             port = free_port()
             env = {k: v for k, v in os.environ.items()
-                   if k not in ('MODEL_API_KEY', 'AGENTGUARD_REDIS_URL')}
+                   if k not in ('MODEL_API_KEY', 'ORIGINGUARD_REDIS_URL')}
             if shared:
-                env['AGENTGUARD_REDIS_URL'] = redis_url
+                env['ORIGINGUARD_REDIS_URL'] = redis_url
             server = subprocess.Popen(
-                [sys.executable, '-m', 'uvicorn', 'agentguard.proxy:app',
+                [sys.executable, '-m', 'uvicorn', 'originguard.proxy:app',
                  '--port', str(port), '--workers', str(workers),
                  '--timeout-keep-alive', '30', '--log-level', 'warning'],
                 env=env,

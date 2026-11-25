@@ -22,7 +22,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from agentguard import Firewall, MetaJudge
+from originguard import Firewall, MetaJudge
 
 from .agent import RunReport, SimAgent
 from .live_agent import LiveAgent
@@ -153,7 +153,7 @@ def run_live(hard: bool = False, runs: int = 1,
 
 def main() -> None:
     """Run every scenario with and without the firewall."""
-    parser = argparse.ArgumentParser(description='AgentGuard demo')
+    parser = argparse.ArgumentParser(description='OriginGuard demo')
     parser.add_argument('--live', action='store_true',
                         help='use a real model through the Meta Model API')
     parser.add_argument('--hard', action='store_true',

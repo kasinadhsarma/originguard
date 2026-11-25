@@ -4,8 +4,8 @@ flowchart LR
         LIB["Option A: ToolGuard or Firewall in-process"]
     end
 
-    subgraph Svc["Option B: AgentGuard service"]
-        UV["uvicorn agentguard.proxy:app with API key and rate limit"]
+    subgraph Svc["Option B: OriginGuard service"]
+        UV["uvicorn originguard.proxy:app with API key and rate limit"]
         FWS["Firewall and sessions in memory, idle expiry"]
         LOG[("hash-chained audit file")]
     end

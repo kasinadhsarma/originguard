@@ -1,6 +1,6 @@
 """ToolGuard: the one-line wrapper between an agent loop and its tools.
 
-    from agentguard.adapters import ToolGuard
+    from originguard.adapters import ToolGuard
 
     guard = ToolGuard.local('Summarize the page and email boss@acme.test')
     tools = guard.protect_all({'fetch_page': fetch_page, 'send_email': send})
@@ -44,7 +44,7 @@ def refusal_message(decision: Decision, confirmed: bool = False) -> str:
     if decision.verdict == Verdict.CONFIRM and not confirmed:
         prefix = 'NOT RUN: the user did not approve this action'
     else:
-        prefix = 'BLOCKED by AgentGuard'
+        prefix = 'BLOCKED by OriginGuard'
     return (
         prefix + ' [' + decision.rule_id + ']: ' + decision.reason +
         '. Do not retry this action.'

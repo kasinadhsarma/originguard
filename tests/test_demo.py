@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentguard import Firewall
+from originguard import Firewall
 from demo.agent import SimAgent
 from demo.scenarios import scenarios
 

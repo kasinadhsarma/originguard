@@ -30,10 +30,10 @@ from typing import Any, Callable
 
 import httpx
 
-from agentguard import Decision, Firewall, Verdict
-from agentguard.adapters import ToolGuard
-from agentguard.adapters.base import refusal_message
-from agentguard.judge import (
+from originguard import Decision, Firewall, Verdict
+from originguard.adapters import ToolGuard
+from originguard.adapters.base import refusal_message
+from originguard.judge import (
     API_KEY_ENV,
     DEFAULT_BASE_URL,
     DEFAULT_MODEL,

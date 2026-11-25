@@ -14,7 +14,7 @@ import json
 from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from agentguard import Firewall
+from originguard import Firewall
 
 from .agent import RunReport, SimAgent
 from .scenarios import Scenario, hard_scenarios, scenarios
@@ -114,7 +114,7 @@ class Handler(BaseHTTPRequestHandler):
 PAGE = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AgentGuard demo</title>
+<title>OriginGuard demo</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1b1f24;--mut:#667;--line:#dde1e6;
 --ok:#1a7f4b;--bad:#c62828;--warn:#b26a00;--acc:#2955d9}
@@ -145,7 +145,7 @@ code{font-family:ui-monospace,monospace;font-size:12.5px;word-break:break-all}
 .why{color:var(--mut);font-size:13px}h2{font-size:16px;margin:0 0 10px}
 .note{color:var(--mut);font-size:12.5px;margin-top:6px}
 </style></head><body><main>
-<h1>AgentGuard: prompt injection firewall</h1>
+<h1>OriginGuard: prompt injection firewall</h1>
 <p class="sub">A simulated AI agent reads a web page, then sends an email. Run it with no protection and behind the firewall. All secrets are fake.</p>
 <div class="card">
  <div class="row">
@@ -180,7 +180,7 @@ $('run').onclick=async()=>{$('run').disabled=true;
  const body=(s&&page===s.page)?{name:s.name}:{page};
  try{const r=await fetch('/api/run',{method:'POST',body:JSON.stringify(body)});
   const d=await r.json();if(d.error){$('out').innerHTML=`<div class="card">${esc(d.error)}</div>`;return}
-  $('out').innerHTML=`<div class="cols">${col('Without firewall',d.unprotected)}${col('With AgentGuard',d.protected)}</div>`;
+  $('out').innerHTML=`<div class="cols">${col('Without firewall',d.unprotected)}${col('With OriginGuard',d.protected)}</div>`;
  }finally{$('run').disabled=false}};
 </script></body></html>"""
 
@@ -192,7 +192,7 @@ def main() -> None:
     parser.add_argument('--host', default='127.0.0.1')
     args = parser.parse_args()
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print('AgentGuard demo UI: http://%s:%d' % (args.host, args.port))
+    print('OriginGuard demo UI: http://%s:%d' % (args.host, args.port))
     server.serve_forever()
 
 

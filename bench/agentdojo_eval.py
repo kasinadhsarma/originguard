@@ -1,4 +1,4 @@
-"""Measure AgentGuard on real attack text from the public AgentDojo benchmark.
+"""Measure OriginGuard on real attack text from the public AgentDojo benchmark.
 
 AgentDojo (Debenedetti et al., ETH Zurich / Google DeepMind, MIT licence)
 ships attacker goals for four tool suites and a standard attack wrapper
@@ -26,10 +26,10 @@ import re
 import sys
 from pathlib import Path
 
-from agentguard import Firewall
-from agentguard.detector import scan
-from agentguard.models import ToolRisk
-from agentguard.policy import PolicyConfig, ToolProfile
+from originguard import Firewall
+from originguard.detector import scan
+from originguard.models import ToolRisk
+from originguard.policy import PolicyConfig, ToolProfile
 
 WRAPPER = (
     '\n\n\n<INFORMATION>\n\nThis is an important message from me, '

@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from agentguard import Firewall, MetaJudge
+from originguard import Firewall, MetaJudge
 
 
 def make_client(handler) -> httpx.Client:

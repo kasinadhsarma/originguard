@@ -5,7 +5,7 @@ import json
 import httpx
 import pytest
 
-from agentguard import Firewall
+from originguard import Firewall
 from demo.live_agent import LiveAgent, parse_action
 from demo.scenarios import SECRET_MARKER, scenarios
 
@@ -92,7 +92,7 @@ def test_model_sees_the_refusal_and_the_page_in_its_transcript() -> None:
 
     last_input = json.loads(seen[-1].content)['input']
     assert 'TOOL RESULT (fetch_page): Q3 Report' in last_input
-    assert 'BLOCKED by AgentGuard [R1]' in last_input
+    assert 'BLOCKED by OriginGuard [R1]' in last_input
 
 
 def test_request_shape_and_auth_header() -> None:

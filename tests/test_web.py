@@ -22,7 +22,7 @@ def _post(url, data):
 def test_page_and_scenarios_are_served() -> None:
     server, base = _serve()
     try:
-        assert b'AgentGuard' in urllib.request.urlopen(base + '/').read()
+        assert b'OriginGuard' in urllib.request.urlopen(base + '/').read()
         names = [s['name'] for s in json.load(
             urllib.request.urlopen(base + '/api/scenarios'))]
         assert 'poisoned' in names and 'authority' in names
@@ -62,7 +62,7 @@ def test_vercel_entry_point_maps_rewritten_paths() -> None:
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = 'http://127.0.0.1:%d' % server.server_address[1]
     try:
-        assert b'AgentGuard' in urllib.request.urlopen(base + '/api/index').read()
+        assert b'OriginGuard' in urllib.request.urlopen(base + '/api/index').read()
         names = json.load(urllib.request.urlopen(
             base + '/api/index?op=scenarios'))
         assert any(s['name'] == 'poisoned' for s in names)

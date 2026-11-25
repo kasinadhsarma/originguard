@@ -1,4 +1,4 @@
-"""Shared data models for the AgentGuard prompt injection firewall."""
+"""Shared data models for the OriginGuard prompt injection firewall."""
 
 from __future__ import annotations
 

@@ -1,21 +1,55 @@
-# Demo video script (about 3 minutes)
+# Demo video script (about 2 min 30 s)
 
-Record the terminal at a large font (browser zoom 150 percent, terminal
-font 18 or more). Record screen and voice with OBS or the built-in
-recorder. Do a dry run first. Keep every command below ready in one file.
+Record the screen with your voice (OBS, or the built-in screen recorder).
+Have these open before you start: the live demo
+(https://originguard.vercel.app), the README on GitHub scrolled to "Results
+on real public attacks", and page 1 of `docs/main.pdf`. Speak slowly; the
+words below are about 330, which fits.
 
-| Time | Show | Say |
-|------|------|-----|
-| 0:00 | Title slide or the README top | "AI agents obey instructions hidden in the pages they read. AgentGuard stops that by tracking where every tool-call target came from." |
-| 0:20 | `python3 -m demo.run_demo`, the "Hidden instruction" scenario, UNPROTECTED part | "Here the page hides an instruction. The agent reads the SSH key and emails it to the attacker. Secret leaked." |
-| 0:45 | Same scenario, PROTECTED part with the R1 lines | "Same page, with AgentGuard. The attacker's address came from the page, not from the user, so the call is blocked by rule R1. The user's own email still goes through after confirmation." |
-| 1:10 | The "Polite, paraphrased attack" scenario | "No attack phrases here, so pattern matching barely notices. Origin tracking still blocks it, because the address came from the page." |
-| 1:30 | `export MODEL_API_KEY` is already set; run `python3 -m demo.run_demo --live` | "Now a real Meta model as the agent, using the Meta Model API. Same three scenarios, without and then with the firewall." Say honestly what the model did; it may resist some injections. |
-| 2:10 | `docs/diagrams/04-policy.png` or the TikZ policy figure in the PDF | "Rules run in order: block when the target came only from untrusted content, ask when the target is unknown, otherwise allow. An optional Meta model judge adds a second opinion." |
-| 2:30 | `python3 -m bench.run_bench` output, then `bench/load_results.json` summary | "50 injections: the detector alone catches 62 percent, but end to end 44 were blocked, 2 held, none got through. It scales across workers with Redis." |
-| 2:50 | README limits section | "It is not magic: the corpus is mine, tracking is textual, English only. The repo is open, with 177 tests." |
-| 3:00 | Repo URL on screen | End. |
+## 0:00 – 0:15  The problem (face the demo page)
+"AI agents read web pages and emails, then send emails and run tools. Text
+hidden in a page can tell the agent to steal your files. That is called
+prompt injection, and it already hit real products. I built OriginGuard, a
+firewall that sits between the agent and its tools."
 
-Before recording, confirm `--live` actually runs (a 402 means billing; see
-the error text it now prints). Do not show your API key on screen: run
-`clear` after setting it, and never `echo $MODEL_API_KEY`.
+## 0:15 – 0:55  Live demo (the Vercel page)
+Pick "Hidden instruction on the page", click Run.
+"Here a simulated agent reads a page with a hidden instruction. Left: no
+protection. The agent reads my private key and emails it to an attacker.
+Right: OriginGuard. Both calls are blocked, rule R1, because the target came
+from untrusted page content and not from me. My own email to my boss still
+goes through. All secrets here are fake."
+Then pick "Claimed authority" and Run: "Even when the page claims I approved it."
+
+## 0:55 – 1:20  How it works (stay on the page, point at the rule text)
+"OriginGuard labels every piece of content as trusted, from the user, or
+untrusted, from the web. A risky action aimed at a target that only untrusted
+content named is blocked. A second check reads the agent's final answer, so a
+link or image that carries a secret, the shape of the Slack AI and EchoLeak
+attacks, is stopped too."
+
+## 1:20 – 1:55  Real data (README results section)
+"I tested it on 46 real attacker goals from AgentDojo, a public benchmark from
+ETH Zurich and Google DeepMind. OriginGuard held 41 of 46, 89 percent. To be
+honest about that: 38 are attacks that name an attacker address, which the
+rules catch by design, and 3 more came from a rule I wrote after seeing them.
+The regex detector on its own is weak on plain text attacks, so the target
+rules do the real work."
+
+## 1:55 – 2:15  The real model (README, live results)
+"I also ran Meta's Muse Spark as the agent, with and without the firewall,
+about twenty runs each, even telling it to obey instructions in pages. It never
+followed the attacks, zero leaks. That is good news for the model, but it also
+means my firewall's blocking is shown by the benchmark and replays, not by a
+live block."
+
+## 2:15 – 2:30  Limits and close (page 1 of the PDF)
+"Limits: it only sees tool calls and answers that go through it, and a user
+who approves a prompt out of habit can still be tricked. It is open source,
+scales with Redis, runs in Docker, and the paper lists every gap. OriginGuard:
+a small, honest firewall for AI agents. Code and live demo are linked below."
+
+## Do not say
+- "100 percent safe", "stops all prompt injection", or "99 percent".
+- That the 41 of 46 is a clean held-out test.
+- That the live model was blocked by the firewall (it never attacked).

@@ -1,9 +1,11 @@
-# AgentGuard
+# OriginGuard
+
+> **OriginGuard** (formerly AgentGuard). Renamed because four unrelated arXiv papers already use "AgentGuard" (2502.09809, 2509.23864, 2605.28071, 2609.16287). See docs/research/README.md.
 
 A prompt injection firewall for AI agents. Version 0.5.0.
 
 Agents that browse the web, read email and call tools can be hijacked by
-instructions hidden in the content they read. AgentGuard sits between the
+instructions hidden in the content they read. OriginGuard sits between the
 agent and its tools. It labels every piece of content as **trusted**
 (the user) or **untrusted** (web, files, tool output, and anything the
 model derived from them), tracks where each tool argument came from, and
@@ -12,7 +14,7 @@ for.
 
 ## Why it works
 
-Pattern matching alone loses to paraphrase. AgentGuard's main defense is
+Pattern matching alone loses to paraphrase. OriginGuard's main defense is
 **origin tracking**: if an email address, URL or file path in a tool
 call was never mentioned by the user and only appears in a web page, the
 call is blocked, however politely the page asked. Detection and an
@@ -36,7 +38,7 @@ Rules are checked in the order R1, R2, R5, R3, R4, R0.
     python -m demo.run_demo          # terminal demo (simulated agent)
     streamlit run demo/app.py        # visual demo
     python -m bench.run_bench        # measure detection on the bundled corpus
-    uvicorn agentguard.proxy:app     # HTTP proxy
+    uvicorn originguard.proxy:app     # HTTP proxy
 
 The demo agent is a deterministic simulation that obeys any instruction
 it reads, so the attack is reproducible. All secrets in it are fake.
@@ -45,7 +47,7 @@ it reads, so the attack is reproducible. All secrets in it are fake.
 
 One line wraps plain Python functions:
 
-    from agentguard.adapters import ToolGuard
+    from originguard.adapters import ToolGuard
 
     guard = ToolGuard.local('Summarize the page and email boss@acme.test')
     tools = guard.protect_all({'fetch_page': fetch_page, 'send_email': send})
@@ -82,7 +84,7 @@ against it (rule R5), and generates a risk profile if none exists:
   mail is a sensitive read; no recognizable verb fails closed);
 - target arguments come from argument names (`to`, `url`, `path`,
   `callback_url`), JSON formats (`email`, `uri`) or the explicit marker
-  `"x-agentguard-target": true` on a property;
+  `"x-originguard-target": true` on a property;
 - the free-text description is never used, because third-party tool
   descriptions can be written by an attacker;
 - hand-written profiles always win, and the API cannot replace them.
@@ -95,15 +97,15 @@ All protections come from environment variables:
 
 | Variable | Effect |
 |----------|--------|
-| `AGENTGUARD_API_KEYS` | comma-separated keys; every endpoint except `/health` then needs one (`X-API-Key` or `Authorization: Bearer`) |
-| `AGENTGUARD_RATE_LIMIT` | requests per minute per caller; 429 with `Retry-After` beyond it |
-| `AGENTGUARD_RATE_BURST` | bucket size (default: the per-minute rate) |
-| `AGENTGUARD_SESSION_TTL` | seconds idle before a session expires (404 afterwards) |
-| `AGENTGUARD_AUDIT_FILE` | write every event to a hash-chained JSON Lines file |
-| `AGENTGUARD_AUDIT_KEY` | HMAC key for that file (strongly recommended) |
-| `AGENTGUARD_AUDIT_FSYNC` | `1` to fsync every audit record (slower, safer) |
-| `AGENTGUARD_REDIS_URL` | keep sessions, rate limits and metrics in Redis so many workers share them |
-| `AGENTGUARD_REDIS_MAX_CONNECTIONS` | Redis pool size per worker (default 50) |
+| `ORIGINGUARD_API_KEYS` | comma-separated keys; every endpoint except `/health` then needs one (`X-API-Key` or `Authorization: Bearer`) |
+| `ORIGINGUARD_RATE_LIMIT` | requests per minute per caller; 429 with `Retry-After` beyond it |
+| `ORIGINGUARD_RATE_BURST` | bucket size (default: the per-minute rate) |
+| `ORIGINGUARD_SESSION_TTL` | seconds idle before a session expires (404 afterwards) |
+| `ORIGINGUARD_AUDIT_FILE` | write every event to a hash-chained JSON Lines file |
+| `ORIGINGUARD_AUDIT_KEY` | HMAC key for that file (strongly recommended) |
+| `ORIGINGUARD_AUDIT_FSYNC` | `1` to fsync every audit record (slower, safer) |
+| `ORIGINGUARD_REDIS_URL` | keep sessions, rate limits and metrics in Redis so many workers share them |
+| `ORIGINGUARD_REDIS_MAX_CONNECTIONS` | Redis pool size per worker (default 50) |
 | `MODEL_API_KEY` | enable the Meta Model API judge |
 
 With nothing set the service runs open, which is fine on localhost for a
@@ -121,10 +123,10 @@ as `expected_head`.
 
 One worker keeps sessions in memory. That is correct for one worker and
 wrong for two: the next request of a session may reach a worker that has
-never heard of it. Set `AGENTGUARD_REDIS_URL` and every worker and pod
+never heard of it. Set `ORIGINGUARD_REDIS_URL` and every worker and pod
 shares the same state, so you can add workers and machines freely.
 
-| What | Single worker (default) | With `AGENTGUARD_REDIS_URL` |
+| What | Single worker (default) | With `ORIGINGUARD_REDIS_URL` |
 |------|-------------------------|-----------------------------|
 | sessions and taint | process memory | Redis, expiring by TTL |
 | rate limit buckets | process memory | Redis, one atomic Lua script, Redis clock |
@@ -142,14 +144,14 @@ authorize each cost two Redis round trips.
 Run it:
 
     # one machine, several workers
-    export AGENTGUARD_REDIS_URL=redis://localhost:6379/0
-    WEB_CONCURRENCY=4 uvicorn agentguard.proxy:app --timeout-keep-alive 30
+    export ORIGINGUARD_REDIS_URL=redis://localhost:6379/0
+    WEB_CONCURRENCY=4 uvicorn originguard.proxy:app --timeout-keep-alive 30
 
     # containers
     docker compose up --build            # see docker-compose.yml
-    kubectl apply -f deploy/k8s/agentguard.yaml
+    kubectl apply -f deploy/k8s/originguard.yaml
 
-`Dockerfile`, `docker-compose.yml` and `deploy/k8s/agentguard.yaml` (3 pods,
+`Dockerfile`, `docker-compose.yml` and `deploy/k8s/originguard.yaml` (3 pods,
 autoscaling to 30, readiness on `/ready`, locked-down security context,
 pod disruption budget) are included. **They have not been built or applied
 yet**; this environment has no Docker or Kubernetes. Their YAML parses,
@@ -256,7 +258,7 @@ never attempted the attack and the firewall blocked nothing there.
 
 ## Web interface
 
-Live demo: https://agentguard-fw.vercel.app (simulated agent, fake secrets, no API key).
+Live demo: https://originguard.vercel.app (simulated agent, fake secrets, no API key).
 
     python3 -m demo.web      # open http://127.0.0.1:8000
 
@@ -272,7 +274,7 @@ without running it; the detector was not changed for this test):
     pip download agentdojo --no-deps && unzip agentdojo-*.whl -d ad
     python3 -m bench.agentdojo_eval ad
 
-**Headline:** On 46 real attacker goals from the public AgentDojo benchmark, AgentGuard held the attacker's action in 41 (89%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. 5 are not caught. "Held" includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks.
+**Headline:** On 46 real attacker goals from the public AgentDojo benchmark, OriginGuard held the attacker's action in 41 (89%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. 5 are not caught. "Held" includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks.
 
 - 46 unique attacker goals. The detector alone, by attack wrapper (flagged
   of 46): `important_instructions` (AgentDojo's default) 100%, `injecagent`
@@ -342,10 +344,10 @@ How to read these numbers:
 
 ## Layout
 
-    agentguard/            detector, normalize, judge, taint, policy, tool_schema,
+    originguard/            detector, normalize, judge, taint, policy, tool_schema,
                            firewall, sessions, audit_store, ratelimit, metrics,
                            settings, proxy
-    agentguard/adapters/   ToolGuard and the OpenAI, Anthropic, LangChain adapters
+    originguard/adapters/   ToolGuard and the OpenAI, Anthropic, LangChain adapters
     demo/                  simulated agent, live agent, scenarios, CLI and Streamlit demos
     bench/                 labelled corpus, benchmark runner, load test, scale matrix
     deploy/k8s/            Kubernetes manifests (Dockerfile and compose at the top)
@@ -371,7 +373,7 @@ How to read these numbers:
   so run exactly one worker. With Redis, session items (page text and the
   contents of files the agent read, including secrets) are stored there in
   plain text until the TTL expires. Use a private network, a password and
-  `rediss://` (TLS), and a short `AGENTGUARD_SESSION_TTL`.
+  `rediss://` (TLS), and a short `ORIGINGUARD_SESSION_TTL`.
 - Redis Cluster key names are cluster-safe, but it was never tested; the
   metrics hash is one key and would be a hot spot there.
 - Metrics lose at most about one second of counts when a worker dies.

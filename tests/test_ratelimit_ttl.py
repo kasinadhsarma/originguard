@@ -2,8 +2,8 @@
 
 import pytest
 
-from agentguard import Firewall
-from agentguard.ratelimit import TokenBucketLimiter
+from originguard import Firewall
+from originguard.ratelimit import TokenBucketLimiter
 
 
 class FakeClock:

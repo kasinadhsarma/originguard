@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from agentguard import Firewall
-from agentguard.audit_store import GENESIS_HASH, AuditStore
-from agentguard.models import AuditEvent
+from originguard import Firewall
+from originguard.audit_store import GENESIS_HASH, AuditStore
+from originguard.models import AuditEvent
 
 
 def make_events(store: AuditStore, count: int = 4) -> None:

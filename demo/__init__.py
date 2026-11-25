@@ -1,1 +1,1 @@
-"""Demo of AgentGuard: an agent hijacked by a poisoned page, then protected."""
+"""Demo of OriginGuard: an agent hijacked by a poisoned page, then protected."""

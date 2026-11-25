@@ -1,4 +1,4 @@
-"""AgentGuard: a prompt injection firewall for AI agents."""
+"""OriginGuard: a prompt injection firewall for AI agents."""
 
 from .firewall import Firewall
 from .judge import MetaJudge

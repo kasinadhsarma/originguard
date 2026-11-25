@@ -1,4 +1,4 @@
-"""A hand-written labelled corpus for measuring AgentGuard.
+"""A hand-written labelled corpus for measuring OriginGuard.
 
 IMPORTANT: this corpus was written by the same people who wrote the
 detector. It is a regression benchmark for this code base, not a public

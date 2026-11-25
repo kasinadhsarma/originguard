@@ -2,9 +2,9 @@ flowchart TB
     caller["Integrator code (agent framework)"] -->|"HTTPS + API key"| svc["Load balancer / Kubernetes Service"]
     prom["Prometheus"] -->|"/metrics"| svc
 
-    svc --> p1["AgentGuard pod 1<br/>N workers"]
-    svc --> p2["AgentGuard pod 2<br/>N workers"]
-    svc --> p3["AgentGuard pod N<br/>N workers"]
+    svc --> p1["OriginGuard pod 1<br/>N workers"]
+    svc --> p2["OriginGuard pod 2<br/>N workers"]
+    svc --> p3["OriginGuard pod N<br/>N workers"]
 
     p1 --> redis[("Redis<br/>session items and events, rate-limit buckets, metrics<br/>if unreachable: every call answers 503")]
     p2 --> redis

@@ -1,8 +1,8 @@
-# AgentGuard: submission text
+# OriginGuard: submission text
 
 Meta Global AI Developer Hackathon. Track: **Indie developer**.
 Theme: **Build for Your World** (a security problem I work on every day).
-Repository: https://github.com/kasinadhsarma/agentguard-fw
+Repository: https://github.com/kasinadhsarma/originguard
 
 ## One line
 
@@ -56,12 +56,12 @@ context), R0 allow.
 
 ## Links
 
-- Code: https://github.com/kasinadhsarma/agentguard-fw
-- Live demo (simulated agent, no API key): https://agentguard-fw.vercel.app
+- Code: https://github.com/kasinadhsarma/originguard
+- Live demo (simulated agent, no API key): https://originguard.vercel.app
 
 ## Headline result
 
-On 46 real attacker goals from the public AgentDojo benchmark, AgentGuard held the attacker's action in 41 (89%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. 5 are not caught. "Held" includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks.
+On 46 real attacker goals from the public AgentDojo benchmark, OriginGuard held the attacker's action in 41 (89%): 38 name an attacker address, site or account, and 3 more are caught by a rule built after seeing them. 5 are not caught. "Held" includes calls that ask the user to confirm. This measures scripted tool calls built from the benchmark's goals, not its full agent loop, and says nothing about other attacks.
 
 ## Live results with the Meta Model API
 
@@ -112,8 +112,8 @@ author's terminal):
 
 ## Run it
 
-    git clone https://github.com/kasinadhsarma/agentguard-fw.git
-    cd agentguard-fw
+    git clone https://github.com/kasinadhsarma/originguard.git
+    cd originguard
     python3 -m venv .venv && source .venv/bin/activate
     pip install -r requirements.txt
     python3 -m pytest

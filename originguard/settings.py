@@ -3,19 +3,19 @@
 Everything comes from environment variables, so the same code runs on a
 laptop and behind a gateway:
 
-  AGENTGUARD_API_KEYS    comma-separated keys; when set, every endpoint
+  ORIGINGUARD_API_KEYS    comma-separated keys; when set, every endpoint
                          except /health requires one
-  AGENTGUARD_RATE_LIMIT  requests per minute per caller (off if unset)
-  AGENTGUARD_RATE_BURST  bucket size (defaults to the per-minute rate)
-  AGENTGUARD_SESSION_TTL seconds of inactivity before a session expires
-  AGENTGUARD_AUDIT_FILE  path of the hash-chained audit log (off if unset);
+  ORIGINGUARD_RATE_LIMIT  requests per minute per caller (off if unset)
+  ORIGINGUARD_RATE_BURST  bucket size (defaults to the per-minute rate)
+  ORIGINGUARD_SESSION_TTL seconds of inactivity before a session expires
+  ORIGINGUARD_AUDIT_FILE  path of the hash-chained audit log (off if unset);
                          $VARS are expanded, e.g. audit-$HOSTNAME.jsonl gives
                          every pod its own chain
-  AGENTGUARD_AUDIT_KEY   HMAC key for the audit log (recommended)
-  AGENTGUARD_AUDIT_FSYNC 1 to fsync every audit record (slower, safer)
-  AGENTGUARD_REDIS_URL   share sessions, rate limits and metrics between
+  ORIGINGUARD_AUDIT_KEY   HMAC key for the audit log (recommended)
+  ORIGINGUARD_AUDIT_FSYNC 1 to fsync every audit record (slower, safer)
+  ORIGINGUARD_REDIS_URL   share sessions, rate limits and metrics between
                          workers through Redis (redis://host:6379/0)
-  AGENTGUARD_REDIS_MAX_CONNECTIONS  pool size per worker (default 50)
+  ORIGINGUARD_REDIS_MAX_CONNECTIONS  pool size per worker (default 50)
   MODEL_API_KEY          enables the Meta Model API judge
 
 With nothing set the service runs open, which is fine on localhost for a
@@ -61,20 +61,20 @@ class ProxySettings:
 
         keys = frozenset(
             key.strip()
-            for key in env.get('AGENTGUARD_API_KEYS', '').split(',')
+            for key in env.get('ORIGINGUARD_API_KEYS', '').split(',')
             if key.strip()
         )
         return cls(
             api_keys=keys,
-            rate_limit_per_minute=_optional_int(env, 'AGENTGUARD_RATE_LIMIT'),
-            rate_limit_burst=_optional_int(env, 'AGENTGUARD_RATE_BURST'),
-            session_ttl=_optional_float(env, 'AGENTGUARD_SESSION_TTL'),
-            audit_file=_expand(env, 'AGENTGUARD_AUDIT_FILE'),
-            audit_key=env.get('AGENTGUARD_AUDIT_KEY') or None,
-            audit_fsync=env.get('AGENTGUARD_AUDIT_FSYNC', '') in ('1', 'true'),
-            redis_url=env.get('AGENTGUARD_REDIS_URL') or None,
+            rate_limit_per_minute=_optional_int(env, 'ORIGINGUARD_RATE_LIMIT'),
+            rate_limit_burst=_optional_int(env, 'ORIGINGUARD_RATE_BURST'),
+            session_ttl=_optional_float(env, 'ORIGINGUARD_SESSION_TTL'),
+            audit_file=_expand(env, 'ORIGINGUARD_AUDIT_FILE'),
+            audit_key=env.get('ORIGINGUARD_AUDIT_KEY') or None,
+            audit_fsync=env.get('ORIGINGUARD_AUDIT_FSYNC', '') in ('1', 'true'),
+            redis_url=env.get('ORIGINGUARD_REDIS_URL') or None,
             redis_max_connections=(
-                _optional_int(env, 'AGENTGUARD_REDIS_MAX_CONNECTIONS') or 50
+                _optional_int(env, 'ORIGINGUARD_REDIS_MAX_CONNECTIONS') or 50
             ),
         )
 

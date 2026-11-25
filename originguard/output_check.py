@@ -122,6 +122,6 @@ def check_text(text: str, tracker: Tracker) -> OutputCheck:
 
     safe = text
     for url in flagged:
-        safe = safe.replace(url, '[removed by AgentGuard]')
+        safe = safe.replace(url, '[removed by OriginGuard]')
     blocked = any(f.verdict == 'block' for f in findings)
     return OutputCheck('block' if blocked else 'allow', findings, safe)

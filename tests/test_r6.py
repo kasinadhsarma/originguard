@@ -1,8 +1,8 @@
 """Tests for rule R6 and the hardened R3."""
 
-from agentguard import Firewall
-from agentguard.models import ToolRisk
-from agentguard.policy import PolicyConfig, ToolProfile
+from originguard import Firewall
+from originguard.models import ToolRisk
+from originguard.policy import PolicyConfig, ToolProfile
 
 
 def _firewall() -> Firewall:

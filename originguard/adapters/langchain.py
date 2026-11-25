@@ -1,7 +1,7 @@
 """Adapter for LangChain tools (langchain-core).
 
-    from agentguard.adapters import ToolGuard
-    from agentguard.adapters.langchain import protect_langchain_tools
+    from originguard.adapters import ToolGuard
+    from originguard.adapters.langchain import protect_langchain_tools
 
     guard = ToolGuard.local(user_request)
     safe_tools = protect_langchain_tools(tools, guard)

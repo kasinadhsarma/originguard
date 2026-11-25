@@ -91,7 +91,7 @@ TARGET_FORMATS = frozenset({
 })
 
 # explicit marker a schema author can put on a property
-TARGET_MARKER = 'x-agentguard-target'
+TARGET_MARKER = 'x-originguard-target'
 
 MAX_SCHEMA_DEPTH = 5
 

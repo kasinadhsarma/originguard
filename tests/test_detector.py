@@ -1,6 +1,6 @@
 """Tests for the heuristic injection detector."""
 
-from agentguard import detector
+from originguard import detector
 
 
 def test_classic_override_is_flagged() -> None:

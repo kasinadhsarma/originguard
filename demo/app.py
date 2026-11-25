@@ -15,7 +15,7 @@ import streamlit as st
 # make the project root importable when launched via `streamlit run`
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from agentguard import Firewall, MetaJudge  # noqa: E402
+from originguard import Firewall, MetaJudge  # noqa: E402
 from demo.agent import RunReport, SimAgent  # noqa: E402
 from demo.scenarios import scenarios  # noqa: E402
 
@@ -44,8 +44,8 @@ def render_report(report: RunReport) -> None:
 
 def main() -> None:
     """Draw the page."""
-    st.set_page_config(page_title='AgentGuard', layout='wide')
-    st.title('AgentGuard')
+    st.set_page_config(page_title='OriginGuard', layout='wide')
+    st.title('OriginGuard')
     st.caption(
         'A prompt injection firewall for AI agents. The agent below is a '
         'simulation that obeys any instruction it reads, so you can see '
@@ -73,7 +73,7 @@ def main() -> None:
         st.subheader('Unprotected')
         render_report(SimAgent().run(scenario))
     with right:
-        st.subheader('With AgentGuard')
+        st.subheader('With OriginGuard')
         firewall = Firewall(judge=judge if judge.enabled else None)
         render_report(SimAgent(firewall).run(scenario))
 

@@ -1,11 +1,11 @@
-# Contributing to AgentGuard
+# Contributing to OriginGuard
 
 Contributions are welcome: bug reports, new attack samples, tests and fixes.
 
 ## Setup
 
-    git clone https://github.com/kasinadhsarma/agentguard-fw.git
-    cd agentguard-fw
+    git clone https://github.com/kasinadhsarma/originguard.git
+    cd originguard
     python -m venv .venv && source .venv/bin/activate
     pip install -r requirements-dev.txt
     python -m pytest

@@ -4,7 +4,7 @@ With one worker the counters live in memory. With several workers they
 are kept in Redis (HINCRBY), so a scrape of any worker reports the whole
 fleet. Recording a metric never fails a request: errors are swallowed.
 
-Metrics (all prefixed agentguard_):
+Metrics (all prefixed originguard_):
 
   requests_total{route,status}         HTTP requests by route and status
   request_seconds_*{route}             latency histogram per route
@@ -22,7 +22,7 @@ import json
 import threading
 from typing import Any
 
-PREFIX = 'agentguard_'
+PREFIX = 'originguard_'
 BUCKETS = (0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5)
 HASH_KEY = 'ag:metrics'
 

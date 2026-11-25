@@ -13,12 +13,12 @@ Scale out.
   histogram by route template; buffered per worker, flushed to Redis every
   second and on shutdown. `GET /ready` readiness probe.
 - Audit log: several processes can append to one file (flock plus tail
-  re-read); `$VARS` in `AGENTGUARD_AUDIT_FILE` give each pod its own chain.
+  re-read); `$VARS` in `ORIGINGUARD_AUDIT_FILE` give each pod its own chain.
 - Judge: pooled HTTP client, verdict cache by content hash, circuit
   breaker (a broken key no longer costs a timeout per ingest).
 - Proxy: plain ASGI middleware (about 0.4 ms less CPU per request).
   Version 0.5.0.
-- `Dockerfile`, `docker-compose.yml`, `deploy/k8s/agentguard.yaml`
+- `Dockerfile`, `docker-compose.yml`, `deploy/k8s/originguard.yaml`
   (not built or applied yet), `bench/load_test.py`,
   `bench/scale_matrix.py`, `bench/load_results.json`.
 - Removed the unused per-session decision list (decisions are audit
@@ -28,7 +28,7 @@ Scale out.
 
 Adapters and a live demo.
 
-- `agentguard.adapters`: `ToolGuard` wraps plain functions (sync and
+- `originguard.adapters`: `ToolGuard` wraps plain functions (sync and
   async) in one line; adapters for OpenAI-style tool calls,
   Anthropic-style tool use blocks and LangChain tools
   (`protect_langchain_tools`, tested against real `langchain-core`).

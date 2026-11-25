@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from agentguard import Decision, Firewall, Verdict
+from originguard import Decision, Firewall, Verdict
 
 from .scenarios import SANDBOX_FILES, SECRET_MARKER, Scenario
 

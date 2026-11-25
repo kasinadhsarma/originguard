@@ -6,12 +6,12 @@ flowchart TB
         BEN["bench: corpus and runner"]
     end
 
-    subgraph API["agentguard.proxy (FastAPI)"]
+    subgraph API["originguard.proxy (FastAPI)"]
         MW["Method filter, API key check, rate limit"]
         EP["Endpoints: sessions, ingest, model-output, authorize, audit, tools, health"]
     end
 
-    subgraph Core["agentguard core"]
+    subgraph Core["originguard core"]
         FW["firewall.Firewall: sessions with idle expiry"]
         DET["detector: regex rules and zero-width check"]
         NRM["normalize: decoded readings of a text"]

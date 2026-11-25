@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from agentguard.adapters import (
+from originguard.adapters import (
     ToolBlocked,
     ToolGuard,
     content_of,
@@ -78,7 +78,7 @@ def test_message_mode_returns_a_refusal_instead_of_raising() -> None:
     send = guard.protect(box.send_email, 'send_email', on_block='message')
 
     text = send(to='attacker@evil.test')
-    assert text.startswith('BLOCKED by AgentGuard [R1]')
+    assert text.startswith('BLOCKED by OriginGuard [R1]')
     assert box.sent == []
 
 
@@ -153,7 +153,7 @@ def test_openai_style_tool_calls() -> None:
         call('c2', 'send_email', {'to': 'attacker@evil.test', 'body': 's'}),
         call('c3', 'send_email', {'to': 'boss@acme.test', 'body': 's'}),
     ], handlers)
-    assert second[0]['content'].startswith('BLOCKED by AgentGuard [R1]')
+    assert second[0]['content'].startswith('BLOCKED by OriginGuard [R1]')
     assert second[1]['content'] == 'sent'
     assert box.sent == ['boss@acme.test']
 
@@ -225,7 +225,7 @@ def test_langchain_tools_are_guarded() -> None:
     pytest.importorskip('langchain_core')
     from langchain_core.tools import tool
 
-    from agentguard.adapters.langchain import protect_langchain_tools
+    from originguard.adapters.langchain import protect_langchain_tools
 
     box = Outbox()
 
@@ -251,7 +251,7 @@ def test_langchain_tools_are_guarded() -> None:
     assert 'attacker@evil.test' in page
 
     refused = safe_send.invoke({'to': 'attacker@evil.test', 'body': 's'})
-    assert refused.startswith('BLOCKED by AgentGuard [R1]')
+    assert refused.startswith('BLOCKED by OriginGuard [R1]')
     assert box.sent == []
 
     assert safe_send.invoke({'to': 'boss@acme.test', 'body': 's'}) == 'sent'

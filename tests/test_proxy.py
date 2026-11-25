@@ -3,8 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from agentguard import Firewall
-from agentguard.proxy import create_app
+from originguard import Firewall
+from originguard.proxy import create_app
 
 
 @pytest.fixture()
@@ -91,7 +91,7 @@ def test_default_app_enables_judge_when_key_is_set(monkeypatch) -> None:
     """The module-level app picks up MODEL_API_KEY from the environment."""
     import importlib
 
-    from agentguard import proxy
+    from originguard import proxy
 
     monkeypatch.setenv('MODEL_API_KEY', 'test-key')
     reloaded = importlib.reload(proxy)

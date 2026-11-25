@@ -1,6 +1,6 @@
 """Tests for the answer check (rules O1, O2)."""
 
-from agentguard import Firewall
+from originguard import Firewall
 
 SECRET = 'sk-live-ab12CD34ef56'
 

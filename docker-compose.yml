@@ -1,6 +1,6 @@
-# One AgentGuard container with several workers, sharing state through Redis.
-#   export AGENTGUARD_API_KEYS=$(openssl rand -hex 24)
-#   export AGENTGUARD_AUDIT_KEY=$(openssl rand -hex 32)
+# One OriginGuard container with several workers, sharing state through Redis.
+#   export ORIGINGUARD_API_KEYS=$(openssl rand -hex 24)
+#   export ORIGINGUARD_AUDIT_KEY=$(openssl rand -hex 32)
 #   export MODEL_API_KEY=...          # optional: enables the Meta judge
 #   docker compose up --build
 services:
@@ -15,9 +15,9 @@ services:
       timeout: 3s
       retries: 10
 
-  agentguard:
+  originguard:
     build: .
-    image: agentguard:0.5.0
+    image: originguard:0.5.0
     depends_on:
       redis:
         condition: service_healthy
@@ -25,15 +25,15 @@ services:
       - "8000:8000"
     environment:
       WEB_CONCURRENCY: "4"
-      AGENTGUARD_REDIS_URL: redis://redis:6379/0
-      AGENTGUARD_API_KEYS: ${AGENTGUARD_API_KEYS:?set AGENTGUARD_API_KEYS}
-      AGENTGUARD_AUDIT_KEY: ${AGENTGUARD_AUDIT_KEY:?set AGENTGUARD_AUDIT_KEY}
-      AGENTGUARD_AUDIT_FILE: /var/log/agentguard/audit-$${HOSTNAME}.jsonl
-      AGENTGUARD_RATE_LIMIT: "6000"
-      AGENTGUARD_SESSION_TTL: "3600"
+      ORIGINGUARD_REDIS_URL: redis://redis:6379/0
+      ORIGINGUARD_API_KEYS: ${ORIGINGUARD_API_KEYS:?set ORIGINGUARD_API_KEYS}
+      ORIGINGUARD_AUDIT_KEY: ${ORIGINGUARD_AUDIT_KEY:?set ORIGINGUARD_AUDIT_KEY}
+      ORIGINGUARD_AUDIT_FILE: /var/log/originguard/audit-$${HOSTNAME}.jsonl
+      ORIGINGUARD_RATE_LIMIT: "6000"
+      ORIGINGUARD_SESSION_TTL: "3600"
       MODEL_API_KEY: ${MODEL_API_KEY:-}
     volumes:
-      - audit:/var/log/agentguard
+      - audit:/var/log/originguard
     read_only: true
     tmpfs:
       - /tmp

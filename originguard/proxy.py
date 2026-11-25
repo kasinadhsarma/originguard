@@ -18,7 +18,7 @@ An agent framework calls these endpoints around every tool call:
 Protections (see settings.py):
 
   * only GET and POST are accepted, everything else is a 405
-  * API key authentication when AGENTGUARD_API_KEYS is set (401)
+  * API key authentication when ORIGINGUARD_API_KEYS is set (401)
   * per-caller token-bucket rate limit (429 with Retry-After)
   * idle sessions expire (404 afterwards)
   * a shared store that cannot be reached means 503, never a guessed verdict
@@ -169,7 +169,7 @@ def create_app(
             except Exception:
                 pass
 
-    app = FastAPI(title='AgentGuard', version='0.5.0', lifespan=lifespan)
+    app = FastAPI(title='OriginGuard', version='0.5.0', lifespan=lifespan)
 
     if limiter is None and config.rate_limit_per_minute:
         limiter = TokenBucketLimiter(

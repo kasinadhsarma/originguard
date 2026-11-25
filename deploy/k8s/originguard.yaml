@@ -1,34 +1,34 @@
-# AgentGuard on Kubernetes: N stateless pods + Redis.
+# OriginGuard on Kubernetes: N stateless pods + Redis.
 # Create the secret first (do not commit real values):
-#   kubectl create secret generic agentguard \
+#   kubectl create secret generic originguard \
 #     --from-literal=api-keys="$(openssl rand -hex 24)" \
 #     --from-literal=audit-key="$(openssl rand -hex 32)" \
 #     --from-literal=model-api-key="$MODEL_API_KEY"
 # Redis below is a single instance for a start. For production use a managed
-# or replicated Redis and point AGENTGUARD_REDIS_URL at it.
+# or replicated Redis and point ORIGINGUARD_REDIS_URL at it.
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: agentguard
+  name: originguard
 data:
   WEB_CONCURRENCY: "2"
-  AGENTGUARD_REDIS_URL: redis://agentguard-redis:6379/0
-  AGENTGUARD_RATE_LIMIT: "6000"
-  AGENTGUARD_SESSION_TTL: "3600"
+  ORIGINGUARD_REDIS_URL: redis://originguard-redis:6379/0
+  ORIGINGUARD_RATE_LIMIT: "6000"
+  ORIGINGUARD_SESSION_TTL: "3600"
   # one hash chain per pod; ship the files with your log collector
-  AGENTGUARD_AUDIT_FILE: /var/log/agentguard/audit-$HOSTNAME.jsonl
+  ORIGINGUARD_AUDIT_FILE: /var/log/originguard/audit-$HOSTNAME.jsonl
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agentguard-redis
+  name: originguard-redis
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: agentguard-redis}
+    matchLabels: {app: originguard-redis}
   template:
     metadata:
-      labels: {app: agentguard-redis}
+      labels: {app: originguard-redis}
     spec:
       containers:
         - name: redis
@@ -45,22 +45,22 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: agentguard-redis
+  name: originguard-redis
 spec:
-  selector: {app: agentguard-redis}
+  selector: {app: originguard-redis}
   ports: [{port: 6379}]
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agentguard
+  name: originguard
 spec:
   replicas: 3
   selector:
-    matchLabels: {app: agentguard}
+    matchLabels: {app: originguard}
   template:
     metadata:
-      labels: {app: agentguard}
+      labels: {app: originguard}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
@@ -71,21 +71,21 @@ spec:
         runAsUser: 10001
         seccompProfile: {type: RuntimeDefault}
       containers:
-        - name: agentguard
-          image: agentguard:0.5.0
+        - name: originguard
+          image: originguard:0.5.0
           ports: [{containerPort: 8000}]
           envFrom:
-            - configMapRef: {name: agentguard}
+            - configMapRef: {name: originguard}
           env:
             - name: HOSTNAME
               valueFrom: {fieldRef: {fieldPath: metadata.name}}
-            - name: AGENTGUARD_API_KEYS
-              valueFrom: {secretKeyRef: {name: agentguard, key: api-keys}}
-            - name: AGENTGUARD_AUDIT_KEY
-              valueFrom: {secretKeyRef: {name: agentguard, key: audit-key}}
+            - name: ORIGINGUARD_API_KEYS
+              valueFrom: {secretKeyRef: {name: originguard, key: api-keys}}
+            - name: ORIGINGUARD_AUDIT_KEY
+              valueFrom: {secretKeyRef: {name: originguard, key: audit-key}}
             - name: MODEL_API_KEY
               valueFrom:
-                secretKeyRef: {name: agentguard, key: model-api-key, optional: true}
+                secretKeyRef: {name: originguard, key: model-api-key, optional: true}
           # restarts only if the process is dead
           livenessProbe:
             httpGet: {path: /health, port: 8000}
@@ -103,7 +103,7 @@ spec:
             readOnlyRootFilesystem: true
             capabilities: {drop: ["ALL"]}
           volumeMounts:
-            - {name: audit, mountPath: /var/log/agentguard}
+            - {name: audit, mountPath: /var/log/originguard}
             - {name: tmp, mountPath: /tmp}
       volumes:
         - name: audit
@@ -114,20 +114,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: agentguard
+  name: originguard
 spec:
-  selector: {app: agentguard}
+  selector: {app: originguard}
   ports: [{port: 80, targetPort: 8000}]
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: agentguard
+  name: originguard
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: agentguard
+    name: originguard
   minReplicas: 3
   maxReplicas: 30
   metrics:
@@ -139,8 +139,8 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: agentguard
+  name: originguard
 spec:
   minAvailable: 2
   selector:
-    matchLabels: {app: agentguard}
+    matchLabels: {app: originguard}

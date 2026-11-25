@@ -3,11 +3,11 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from agentguard import Firewall
-from agentguard.audit_store import AuditStore
-from agentguard.proxy import create_app
-from agentguard.ratelimit import TokenBucketLimiter
-from agentguard.settings import ProxySettings
+from originguard import Firewall
+from originguard.audit_store import AuditStore
+from originguard.proxy import create_app
+from originguard.ratelimit import TokenBucketLimiter
+from originguard.settings import ProxySettings
 
 
 class FakeClock:
@@ -224,9 +224,9 @@ def test_audit_log_over_http(tmp_path) -> None:
     'env,expected',
     [
         ({}, ProxySettings()),
-        ({'AGENTGUARD_API_KEYS': ' a, b ,'},
+        ({'ORIGINGUARD_API_KEYS': ' a, b ,'},
          ProxySettings(api_keys=frozenset({'a', 'b'}))),
-        ({'AGENTGUARD_RATE_LIMIT': '30', 'AGENTGUARD_SESSION_TTL': '900'},
+        ({'ORIGINGUARD_RATE_LIMIT': '30', 'ORIGINGUARD_SESSION_TTL': '900'},
          ProxySettings(rate_limit_per_minute=30, session_ttl=900.0)),
     ],
 )
@@ -238,4 +238,4 @@ def test_settings_from_environment(env, expected) -> None:
 def test_settings_reject_non_positive_numbers() -> None:
     """A zero rate limit is a startup error, not silently off."""
     with pytest.raises(ValueError):
-        ProxySettings.from_env({'AGENTGUARD_RATE_LIMIT': '0'})
+        ProxySettings.from_env({'ORIGINGUARD_RATE_LIMIT': '0'})

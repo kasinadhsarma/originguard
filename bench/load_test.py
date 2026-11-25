@@ -1,4 +1,4 @@
-"""Load test for a running AgentGuard proxy.
+"""Load test for a running OriginGuard proxy.
 
 Simulates many agents at once. Each virtual agent repeats this script:
 

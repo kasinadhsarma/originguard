@@ -1,6 +1,6 @@
 """Tests for taint tracking and the policy engine through the Firewall."""
 
-from agentguard import Firewall, Verdict
+from originguard import Firewall, Verdict
 
 
 USER_PROMPT = (

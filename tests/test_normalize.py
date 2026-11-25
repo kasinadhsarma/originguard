@@ -4,9 +4,9 @@ import base64
 
 import pytest
 
-from agentguard import Firewall
-from agentguard.normalize import entity_in_text
-from agentguard.taint import shared_span
+from originguard import Firewall
+from originguard.normalize import entity_in_text
+from originguard.taint import shared_span
 
 
 @pytest.mark.parametrize(
